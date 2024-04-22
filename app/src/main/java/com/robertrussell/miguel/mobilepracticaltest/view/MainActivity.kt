@@ -30,8 +30,12 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -136,6 +140,10 @@ fun HomePage(carViewModel: CarViewModel) {
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+
+            /**
+             * Tacoma poster
+             */
             Box(modifier = with(Modifier) {
                 fillMaxWidth(1f).paint(
                     painterResource(id = R.drawable.tacoma),
@@ -171,72 +179,81 @@ fun HomePage(carViewModel: CarViewModel) {
                 }
             }
 
-            Column(
-                modifier = Modifier.padding(20.dp),
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Box(
-                    modifier = Modifier
-                        .clip(RoundedCornerShape(15.dp))
-                        .fillMaxWidth()
-                        .background(colorResource(id = R.color.dark_gray))
-                        .padding(15.dp)
-                ) {
-                    Column {
+            /**
+             * Filters section
+             */
+//            Column(
+//                modifier = Modifier.padding(20.dp),
+//                verticalArrangement = Arrangement.Center,
+//                horizontalAlignment = Alignment.CenterHorizontally
+//            ) {
+//                Box(
+//                    modifier = Modifier
+//                        .clip(RoundedCornerShape(15.dp))
+//                        .fillMaxWidth()
+//                        .background(colorResource(id = R.color.dark_gray))
+//                        .padding(15.dp)
+//                ) {
+//                    Column {
+//
+//                        val maker = remember { mutableStateOf("") }
+//                        val model = remember { mutableStateOf("") }
+//
+//                        Text(
+//                            text = "Filters",
+//                            modifier = Modifier
+//                                .padding(0.dp, 0.dp, 10.dp, 0.dp),
+//                            style = TextStyle(
+//                                color = White,
+//                                fontSize = 20.sp,
+//                                fontWeight = FontWeight.Normal
+//                            )
+//                        )
+//
+//                        TextField(
+//                            modifier = Modifier
+//                                .fillMaxWidth()
+//                                .padding(3.dp)
+//                                .border(0.dp, Color.DarkGray, shape = RoundedCornerShape(10.dp)),
+//                            shape = RoundedCornerShape(10.dp),
+//                            singleLine = true,
+//                            maxLines = 1,
+//                            label = { Text(text = "Any Maker") },
+//                            value = maker.value,
+//                            onValueChange = {
+//
+//                            })
+//
+//                        TextField(
+//                            modifier = Modifier
+//                                .fillMaxWidth()
+//                                .padding(3.dp)
+//                                .border(0.dp, Color.DarkGray, shape = RoundedCornerShape(10.dp)),
+//                            shape = RoundedCornerShape(10.dp),
+//                            singleLine = true,
+//                            maxLines = 1,
+//                            label = { Text(text = "Any Model") },
+//                            value = model.value,
+//                            onValueChange = {
+//
+//                            })
+//                    }
+//                }
+//            }
 
-                        val maker = remember { mutableStateOf("") }
-                        val model = remember { mutableStateOf("") }
-
-                        Text(
-                            text = "Filters",
-                            modifier = Modifier
-                                .padding(0.dp, 0.dp, 10.dp, 0.dp),
-                            style = TextStyle(
-                                color = White,
-                                fontSize = 20.sp,
-                                fontWeight = FontWeight.Normal
-                            )
-                        )
-
-                        TextField(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(3.dp)
-                                .border(0.dp, Color.DarkGray, shape = RoundedCornerShape(10.dp)),
-                            shape = RoundedCornerShape(10.dp),
-                            singleLine = true,
-                            maxLines = 1,
-                            label = { Text(text = "Any Maker") },
-                            value = maker.value,
-                            onValueChange = {
-
-                            })
-
-                        TextField(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(3.dp)
-                                .border(0.dp, Color.DarkGray, shape = RoundedCornerShape(10.dp)),
-                            shape = RoundedCornerShape(10.dp),
-                            singleLine = true,
-                            maxLines = 1,
-                            label = { Text(text = "Any Model") },
-                            value = model.value,
-                            onValueChange = {
-
-                            })
-                    }
-                }
-            }
-
+            var expandedIndex by remember { mutableStateOf(0) }
             LazyColumn(
                 modifier = Modifier
                     .fillMaxSize()
             ) {
-
-                items(items = items) {
-                    CarListCollapsedItem(info = it)
+                items(items.size) { index ->
+                    CarListItem(
+                        info = items[index],
+                        isExpanded = index == expandedIndex,
+                        onExpand = {expanded ->
+                            expandedIndex = if (expanded) index else -1
+                        }
+                    )
                     Divider(
                         color = colorResource(id = R.color.orange),
                         modifier = Modifier.padding(10.dp).height(3.dp)

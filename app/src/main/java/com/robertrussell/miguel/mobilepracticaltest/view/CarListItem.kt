@@ -1,7 +1,9 @@
 package com.robertrussell.miguel.mobilepracticaltest.view
 
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -20,26 +22,29 @@ import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.robertrussell.miguel.mobilepracticaltest.R
 import com.robertrussell.miguel.mobilepracticaltest.domain.model.CarInformation
 
 @Composable
-fun CarListCollapsedItem(info: CarInformation) {
+fun CarListItem(info: CarInformation, isExpanded: Boolean, onExpand: (Boolean) -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .padding(0.dp)
-            .background(colorResource(id = R.color.light_gray)),
+            .background(colorResource(id = R.color.light_gray))
+            .clickable {
+                onExpand(!isExpanded)
+            },
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.Start
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(10.dp),
+                .padding(10.dp)
+                .animateContentSize(),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             val image = when (info.maker) {
@@ -89,25 +94,83 @@ fun CarListCollapsedItem(info: CarInformation) {
                 }
             }
         }
+
+        if (isExpanded) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(10.dp, 10.dp, 10.dp, 10.dp),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.Start
+            ) {
+                Column {
+                    Text(
+                        text = "Pros:",
+                        style = TextStyle(
+                            color = Color.Gray,
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.SemiBold
+                        )
+                    )
+                    for (item in info.pros) {
+                        Row(
+                            modifier = Modifier.padding(3.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            if (item != "") {
+                                Icon(
+                                    painterResource(id = R.drawable.bullet_icon),
+                                    contentDescription = null,
+                                    tint = colorResource(id = R.color.orange),
+                                )
+                                Text(
+                                    modifier = Modifier.padding(horizontal = 5.dp),
+                                    text = item,
+                                    style = TextStyle(
+                                        color = Color.Black,
+                                        fontSize = 12.sp,
+                                        fontWeight = FontWeight.SemiBold
+                                    )
+                                )
+                            }
+                        }
+                    }
+                }
+
+                Column {
+                    Text(
+                        text = "Cons:",
+                        style = TextStyle(
+                            color = Color.Gray,
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.SemiBold
+                        )
+                    )
+                    for (item in info.cons) {
+                        Row(
+                            modifier = Modifier.padding(3.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            if (item != "") {
+                                Icon(
+                                    painterResource(id = R.drawable.bullet_icon),
+                                    contentDescription = null,
+                                    tint = colorResource(id = R.color.orange),
+                                )
+                                Text(
+                                    modifier = Modifier.padding(horizontal = 5.dp),
+                                    text = item,
+                                    style = TextStyle(
+                                        color = Color.Black,
+                                        fontSize = 12.sp,
+                                        fontWeight = FontWeight.SemiBold
+                                    )
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 }
-
-@Preview
-@Composable
-fun CarListItemPreview() {
-    val info = CarInformation(
-        id = 0,
-        model = "Range Rover",
-        maker = "Land Rover",
-        marketPrice = 125000.0,
-        customerPrice = 120000.0,
-        rating = 3,
-        cons = listOf("Bad direction"),
-        pros = listOf(
-            "You can go everywhere",
-            "Good sound system"
-        )
-    )
-    CarListCollapsedItem(info = info)
-}
-
