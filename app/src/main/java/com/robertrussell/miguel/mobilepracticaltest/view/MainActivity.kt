@@ -9,10 +9,12 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -48,6 +50,7 @@ import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -179,85 +182,96 @@ fun HomePage(carViewModel: CarViewModel) {
                 }
             }
 
+            var expandedIndex by remember { mutableStateOf(0) }
+            var maker by remember { mutableStateOf("") }
+            var model by remember { mutableStateOf("") }
+
             /**
              * Filters section
              */
-//            Column(
-//                modifier = Modifier.padding(20.dp),
-//                verticalArrangement = Arrangement.Center,
-//                horizontalAlignment = Alignment.CenterHorizontally
-//            ) {
-//                Box(
-//                    modifier = Modifier
-//                        .clip(RoundedCornerShape(15.dp))
-//                        .fillMaxWidth()
-//                        .background(colorResource(id = R.color.dark_gray))
-//                        .padding(15.dp)
-//                ) {
-//                    Column {
-//
-//                        val maker = remember { mutableStateOf("") }
-//                        val model = remember { mutableStateOf("") }
-//
-//                        Text(
-//                            text = "Filters",
-//                            modifier = Modifier
-//                                .padding(0.dp, 0.dp, 10.dp, 0.dp),
-//                            style = TextStyle(
-//                                color = White,
-//                                fontSize = 20.sp,
-//                                fontWeight = FontWeight.Normal
-//                            )
-//                        )
-//
-//                        TextField(
-//                            modifier = Modifier
-//                                .fillMaxWidth()
-//                                .padding(3.dp)
-//                                .border(0.dp, Color.DarkGray, shape = RoundedCornerShape(10.dp)),
-//                            shape = RoundedCornerShape(10.dp),
-//                            singleLine = true,
-//                            maxLines = 1,
-//                            label = { Text(text = "Any Maker") },
-//                            value = maker.value,
-//                            onValueChange = {
-//
-//                            })
-//
-//                        TextField(
-//                            modifier = Modifier
-//                                .fillMaxWidth()
-//                                .padding(3.dp)
-//                                .border(0.dp, Color.DarkGray, shape = RoundedCornerShape(10.dp)),
-//                            shape = RoundedCornerShape(10.dp),
-//                            singleLine = true,
-//                            maxLines = 1,
-//                            label = { Text(text = "Any Model") },
-//                            value = model.value,
-//                            onValueChange = {
-//
-//                            })
-//                    }
-//                }
-//            }
+            Column(
+                modifier = Modifier.padding(10.dp),
+                verticalArrangement = Arrangement.Center,
+                //horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Box(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(15.dp))
+                        .fillMaxWidth()
+                        .background(colorResource(id = R.color.dark_gray))
+                        .padding(10.dp)
+                ) {
+                    Column {
 
-            var expandedIndex by remember { mutableStateOf(0) }
+                        Text(
+                            text = "Filters",
+                            modifier = Modifier
+                                .padding(10.dp, 0.dp, 10.dp, 0.dp),
+                            style = TextStyle(
+                                color = White,
+                                fontSize = 18.sp,
+                                fontWeight = FontWeight.Normal
+                            )
+                        )
+
+                        TextField(
+                            value = maker,
+                            onValueChange = {
+                                maker = it
+                                expandedIndex = 0
+                            },
+                            label = { Text("Any maker") },
+                            singleLine = true,
+                            maxLines = 1,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .wrapContentHeight()
+                                .padding(10.dp)
+                        )
+
+                        TextField(
+                            value = model,
+                            onValueChange = {
+                                model = it
+                                expandedIndex = 0
+                            },
+                            label = { Text("Any model") },
+                            singleLine = true,
+                            maxLines = 1,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .wrapContentHeight()
+                                .padding(10.dp)
+                        )
+                    }
+                }
+            }
+
             LazyColumn(
                 modifier = Modifier
                     .fillMaxSize()
             ) {
                 items(items.size) { index ->
-                    CarListItem(
-                        info = items[index],
-                        isExpanded = index == expandedIndex,
-                        onExpand = {expanded ->
-                            expandedIndex = if (expanded) index else -1
-                        }
-                    )
-                    Divider(
-                        color = colorResource(id = R.color.orange),
-                        modifier = Modifier.padding(10.dp).height(3.dp)
-                    )
+                    if (items[index].maker?.contains(
+                            maker,
+                            ignoreCase = true
+                        ) == true && items[index].model?.contains(model, ignoreCase = true) == true
+                    ) {
+                        CarListItem(
+                            info = items[index],
+                            isExpanded = index == expandedIndex,
+                            onExpand = { expanded ->
+                                expandedIndex = if (expanded) index else 0
+                            }
+                        )
+                        Divider(
+                            color = colorResource(id = R.color.orange),
+                            modifier = Modifier
+                                .padding(10.dp)
+                                .height(3.dp)
+                        )
+                    }
+
                 }
             }
         }
