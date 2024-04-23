@@ -5,19 +5,18 @@ import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.Divider
@@ -33,24 +32,19 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.paint
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Color.Companion.Black
 import androidx.compose.ui.graphics.Color.Companion.White
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -141,8 +135,11 @@ fun HomePage(carViewModel: CarViewModel) {
             modifier = Modifier
                 .fillMaxSize(),
             verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
+            horizontalAlignment = Alignment.CenterHorizontally,
         ) {
+            var expandedIndex by remember { mutableStateOf(0) }
+            var maker by remember { mutableStateOf("") }
+            var model by remember { mutableStateOf("") }
 
             /**
              * Tacoma poster
@@ -182,17 +179,13 @@ fun HomePage(carViewModel: CarViewModel) {
                 }
             }
 
-            var expandedIndex by remember { mutableStateOf(0) }
-            var maker by remember { mutableStateOf("") }
-            var model by remember { mutableStateOf("") }
-
             /**
              * Filters section
              */
             Column(
                 modifier = Modifier.padding(10.dp),
                 verticalArrangement = Arrangement.Center,
-                //horizontalAlignment = Alignment.CenterHorizontally
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Box(
                     modifier = Modifier
@@ -202,7 +195,6 @@ fun HomePage(carViewModel: CarViewModel) {
                         .padding(10.dp)
                 ) {
                     Column {
-
                         Text(
                             text = "Filters",
                             modifier = Modifier
@@ -251,27 +243,35 @@ fun HomePage(carViewModel: CarViewModel) {
                 modifier = Modifier
                     .fillMaxSize()
             ) {
-                items(items.size) { index ->
-                    if (items[index].maker?.contains(
-                            maker,
-                            ignoreCase = true
-                        ) == true && items[index].model?.contains(model, ignoreCase = true) == true
+                /**
+                 * Filter items to be viewed.
+                 */
+                val cars: MutableList<CarInformation> = mutableListOf()
+                for (car in items) {
+                    if (car.maker?.contains(maker, ignoreCase = true) == true &&
+                        car.model?.contains(model, ignoreCase = true) == true
                     ) {
-                        CarListItem(
-                            info = items[index],
-                            isExpanded = index == expandedIndex,
-                            onExpand = { expanded ->
-                                expandedIndex = if (expanded) index else 0
-                            }
-                        )
-                        Divider(
-                            color = colorResource(id = R.color.orange),
-                            modifier = Modifier
-                                .padding(10.dp)
-                                .height(3.dp)
-                        )
+                        cars.add(car)
                     }
+                }
 
+                /**
+                 * Items for LazyColumn
+                 */
+                items(cars.size) { index ->
+                    CarListItem(
+                        info = cars[index],
+                        isExpanded = index == expandedIndex,
+                        onExpand = { expanded ->
+                            expandedIndex = if (expanded) index else -1
+                        }
+                    )
+                    Divider(
+                        color = colorResource(id = R.color.orange),
+                        modifier = Modifier
+                            .padding(10.dp)
+                            .height(3.dp)
+                    )
                 }
             }
         }
